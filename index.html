@@ -8,9 +8,20 @@
     </style>
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="data.php"></script>
-    <script src="//www.openlayers.org/api/OpenLayers.js"></script>
+    <!-- script src="//openlayers.org/api/OpenLayers.js"></script -->
+    <script src="OpenLayers.js"></script>
     <script>
         window.onload = function(){
+
+            function onMapChange() {
+                var projection3857 = new OpenLayers.Projection("EPSG:3857");
+                var projection4326 = new OpenLayers.Projection("EPSG:4326");
+                var lonLat = this.getCenter().transform(projection3857,projection4326);
+                lonLat.lat = Math.round(lonLat.lat*1000000)/1000000;
+                lonLat.lon = Math.round(lonLat.lon*1000000)/1000000;
+                $("#lat").val(lonLat.lat);
+                $("#lng").val(lonLat.lon);
+            }
 
             $("#add").click(function () {
                 $.ajax({
@@ -48,6 +59,9 @@
                 layers: [new OpenLayers.Layer.OSM()].concat(layers),
                 center: centerLocation.getBounds().getCenterLonLat(), zoom: 12
             });
+
+            // 移動時イベント
+            map.events.register("moveend" , map, onMapChange);  
 
             var addMarkers = function() {
               return new Promise(function(resolve, reject) {
@@ -99,3 +113,4 @@
     <div id="map"></div>
 </body>
 </html>
+

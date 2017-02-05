@@ -1,7 +1,7 @@
 <?php
 // Copyright (c) 2017 YA-androidapp(https://github.com/YA-androidapp) All rights reserved.
 header('Content-Type: text/javascript; name="data.js"');
-error_reporting(0);
+//error_reporting(0);
 ?>
 var points = [
 <?php
@@ -19,12 +19,12 @@ if (!$result) {
   die('クエリーが失敗しました。'.$sqliteerror);
 }
 
-$sql = 'insert into places(name, lat, lng, type) values("東京タワー", 35.658581, 139.745433, 0)';
-$result = $db->query($sql);
-if (!$result) {
-  $db->close();
-  die('クエリーが失敗しました。'.$sqliteerror);
-}
+// $sql = 'insert into places(name, lat, lng, type) values("東京タワー", 35.658581, 139.745433, 0)';
+// $result = $db->query($sql);
+// if (!$result) {
+//   $db->close();
+//   die('クエリーが失敗しました。'.$sqliteerror);
+// }
 
 $sql = "SELECT * FROM places";
 $results = $db->query($sql);
