@@ -1,0 +1,101 @@
+<html><!-- Copyright (c) 2017 YA-androidapp(https://github.com/YA-androidapp) All rights reserved. -->
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+        #map {height: 98%;  with: 98%;}
+        div.olPopup {opacity: 0.3; display: none;}
+    </style>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="data.php"></script>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script>
+        window.onload = function(){
+
+            $("#add").click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "add.php",
+                    data: "pw="+$("#pw").val()+"&name="+$("#name").val()+"&lat="+$("#lat").val()+"&lng="+$("#lng").val()+"&type=0",
+                    success: function(msg){
+                        alert("保存しました。");
+                        location.reload();
+                    }
+                });
+            });
+
+            var defLng = 139.7528, defLat = 35.685175;
+
+            centerLocation = new OpenLayers.Geometry.Point(defLng, defLat).transform('EPSG:4326', 'EPSG:3857');
+
+            icons = [["http://labs.google.com/ridefinder/images/mm_20_red.png",12, 20, -20],
+            ["http://labs.google.com/ridefinder/images/mm_20_orange.png",12, 20, -20],
+            ["http://labs.google.com/ridefinder/images/mm_20_yellow.png",12, 20, -20]];
+
+            layers = new Array(icons.length);
+            for (i=0; i<layers.length; i++){
+                layers[i] = new OpenLayers.Layer.Vector('Overlay', {
+                    styleMap: new OpenLayers.StyleMap({
+                        externalGraphic: icons[i][0],
+                        graphicWidth: icons[i][1], graphicHeight: icons[i][2], graphicYOffset: icons[i][3],
+                        title: '${tooltip}'
+                    })
+                });
+            }
+
+            map = new OpenLayers.Map({
+                div: "map", projection: "EPSG:3857",
+                layers: [new OpenLayers.Layer.OSM()].concat(layers),
+                center: centerLocation.getBounds().getCenterLonLat(), zoom: 12
+            });
+
+            var addMarkers = function() {
+              return new Promise(function(resolve, reject) {
+                for (var i = 0; i < points.length; i++) {
+                    var point=points[i], name=point[0], lat=point[1]+(0.00005*point[3]), lng=point[2]+(0.00005*point[3]), layer=layers[point[3]];
+                    addMarker(name,lat,lng,layer);
+                }
+                resolve();
+              });
+            };
+
+            addMarkers().then(function() {
+                var mapid = document.getElementById("map");
+                document.oncontextmenu = function(){
+                    var olpopup = document.getElementsByClassName("olPopup");
+                    if (olpopup) {
+                        for (var i=0;i<olpopup.length;i++) {
+                            var display = olpopup[i].style.display;
+                            if (display == "none") {
+                                olpopup[i].style.display = "block";
+                            } else {
+                                olpopup[i].style.display = "none";
+                            }
+                        }
+                    }
+                    return false;
+                };
+            });
+
+        }
+
+        function addMarker(name, lat, lng, layer){
+            var myLocation = new OpenLayers.Geometry.Point(lng, lat).transform('EPSG:4326', 'EPSG:3857');
+            layer.addFeatures([new OpenLayers.Feature.Vector(myLocation,{tooltip: name})]);
+            var popup = new OpenLayers.Popup.FramedCloud('popup',myLocation.getBounds().getCenterLonLat(),null,name,null,true);
+            map.addPopup(popup);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        右クリックで吹き出しの表示／非表示を切り替えられます<br />
+        <input type="text"     id="name" name="name" title="名称"      value="名称" />
+        <input type="text"     id="lat"  name="lat"  title="緯度"      value="35.0" />
+        <input type="text"     id="lng"  name="lng"  title="経度"      value="139.0" />
+        <input type="password" id="pw"   name="pw"   title="パスワード" value="Password" />
+        <input type="button"   id="add"  name="add"                   value="地図の中心地点をDBに追加する">
+    </div>
+    <div id="map"></div>
+</body>
+</html>
