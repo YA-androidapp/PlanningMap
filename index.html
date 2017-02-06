@@ -30,7 +30,8 @@
                     data: "pw="+$("#pw").val()+"&name="+$("#name").val()+"&lat="+$("#lat").val()+"&lng="+$("#lng").val()+"&type=0",
                     success: function(msg){
                         alert("保存しました。");
-                        location.reload();
+                        var name=$("#name").val(), lat=$("#lat").val(), lng=$("#lng").val(), layer=layers[0];
+                        addMarker(name,lat,lng,layer);
                     }
                 });
             });
@@ -61,7 +62,7 @@
             });
 
             // 移動時イベント
-            map.events.register("moveend" , map, onMapChange);  
+            map.events.register("moveend" , map, onMapChange);
 
             var addMarkers = function() {
               return new Promise(function(resolve, reject) {
@@ -107,7 +108,7 @@
         <input type="text"     id="name" name="name" title="名称"      value="名称" />
         <input type="text"     id="lat"  name="lat"  title="緯度"      value="35.0" />
         <input type="text"     id="lng"  name="lng"  title="経度"      value="139.0" />
-        <input type="password" id="pw"   name="pw"   title="パスワード" value="Password" />
+        <input type="password" id="pw"   name="pw"   title="パスワード" value="PASSWORD" />
         <input type="button"   id="add"  name="add"                   value="地図の中心地点をDBに追加する">
     </div>
     <div id="map"></div>

@@ -19,13 +19,6 @@ if (!$result) {
   die('クエリーが失敗しました。'.$sqliteerror);
 }
 
-// $sql = 'insert into places(name, lat, lng, type) values("東京タワー", 35.658581, 139.745433, 0)';
-// $result = $db->query($sql);
-// if (!$result) {
-//   $db->close();
-//   die('クエリーが失敗しました。'.$sqliteerror);
-// }
-
 $sql = "SELECT * FROM places";
 $results = $db->query($sql);
 if (!$results) {
@@ -33,7 +26,15 @@ if (!$results) {
   die('クエリーが失敗しました。'.$sqliteerror);
 }
 while ($row = $results->fetchArray()) {
-  echo ' ["'.$row['name'].'",'.$row['lat'].', '.$row['lng'].',0],';
+  echo json_encode(
+    array(
+      $row['name'],
+      $row['lat'],
+      $row['lng'],
+      0
+      ),
+    JSON_UNESCAPED_UNICODE
+    ).",\n";
 }
 
 // 切断

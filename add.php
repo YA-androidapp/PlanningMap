@@ -49,15 +49,23 @@ if (!$result) {
   die('クエリーが失敗しました。'.$sqliteerror);
 }
 
-$sql = "SELECT * FROM places";
-$results = $db->query($sql);
-if (!$results) {
-  $db->close();
-  die('クエリーが失敗しました。'.$sqliteerror);
-}
-while ($row = $results->fetchArray()) {
-  echo ' ["'.$row['name'].'",'.$row['lat'].', '.$row['lng'].',0],';
-}
+// $sql = "SELECT * FROM places";
+// $results = $db->query($sql);
+// if (!$results) {
+//   $db->close();
+//   die('クエリーが失敗しました。'.$sqliteerror);
+// }
+// while ($row = $results->fetchArray()) {
+//   echo json_encode(
+//     array(
+//       $row['name'],
+//       $row['lat'],
+//       $row['lng'],
+//       0
+//       ),
+//     JSON_UNESCAPED_UNICODE
+//     ).",\n";
+// }
 
 // 切断
 $db->close();
