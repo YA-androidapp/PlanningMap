@@ -1,24 +1,43 @@
-<html><!-- Copyright (c) 2017 YA-androidapp(https://github.com/YA-androidapp) All rights reserved. -->
+<html>
+<!-- Copyright (c) 2017 YA-androidapp(https://github.com/YA-androidapp) All rights reserved. -->
+
 <head>
     <title></title>
     <meta charset="utf-8" />
     <style type="text/css">
-        #map {height: 98%;  with: 98%;}
-        div.olPopup {opacity: 0.3; display: none;}
+        #map {
+            height: 98%;
+            with: 98%;
+        }
+
+        div.olPopup {
+            opacity: 0.3;
+            display: none;
+        }
     </style>
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="data.php"></script>
     <!-- script src="//openlayers.org/api/OpenLayers.js"></script -->
     <script src="OpenLayers.js"></script>
     <script>
-        window.onload = function(){
+        function remove(id) {
+            $.ajax({
+                type: "POST",
+                url: "remove.php",
+                data: "pw=" + $("#pw").val() + "&id=" + id,
+                success: function (msg) {
+                    alert("削除しました。");
+                }
+            });
+        }
+        window.onload = function () {
 
             function onMapChange() {
                 var projection3857 = new OpenLayers.Projection("EPSG:3857");
                 var projection4326 = new OpenLayers.Projection("EPSG:4326");
-                var lonLat = this.getCenter().transform(projection3857,projection4326);
-                lonLat.lat = Math.round(lonLat.lat*1000000)/1000000;
-                lonLat.lon = Math.round(lonLat.lon*1000000)/1000000;
+                var lonLat = this.getCenter().transform(projection3857, projection4326);
+                lonLat.lat = Math.round(lonLat.lat * 1000000) / 1000000;
+                lonLat.lon = Math.round(lonLat.lon * 1000000) / 1000000;
                 $("#lat").val(lonLat.lat);
                 $("#lng").val(lonLat.lon);
             }
@@ -27,11 +46,11 @@
                 $.ajax({
                     type: "POST",
                     url: "add.php",
-                    data: "pw="+$("#pw").val()+"&name="+$("#name").val()+"&lat="+$("#lat").val()+"&lng="+$("#lng").val()+"&type=0",
-                    success: function(msg){
+                    data: "pw=" + $("#pw").val() + "&name=" + $("#name").val() + "&lat=" + $("#lat").val() + "&lng=" + $("#lng").val() + "&type=0",
+                    success: function (msg) {
                         alert("保存しました。");
-                        var name=$("#name").val(), lat=$("#lat").val(), lng=$("#lng").val(), layer=layers[0];
-                        addMarker(name,lat,lng,layer);
+                        var name = $("#name").val(), lat = $("#lat").val(), lng = $("#lng").val(), layer = layers[0];
+                        addMarker(name, lat, lng, layer);
                     }
                 });
             });
@@ -40,12 +59,12 @@
 
             centerLocation = new OpenLayers.Geometry.Point(defLng, defLat).transform('EPSG:4326', 'EPSG:3857');
 
-            icons = [["http://labs.google.com/ridefinder/images/mm_20_red.png",12, 20, -20],
-            ["http://labs.google.com/ridefinder/images/mm_20_orange.png",12, 20, -20],
-            ["http://labs.google.com/ridefinder/images/mm_20_yellow.png",12, 20, -20]];
+            icons = [["http://labs.google.com/ridefinder/images/mm_20_red.png", 12, 20, -20],
+            ["http://labs.google.com/ridefinder/images/mm_20_orange.png", 12, 20, -20],
+            ["http://labs.google.com/ridefinder/images/mm_20_yellow.png", 12, 20, -20]];
 
             layers = new Array(icons.length);
-            for (i=0; i<layers.length; i++){
+            for (i = 0; i < layers.length; i++) {
                 layers[i] = new OpenLayers.Layer.Vector('Overlay', {
                     styleMap: new OpenLayers.StyleMap({
                         externalGraphic: icons[i][0],
@@ -62,24 +81,31 @@
             });
 
             // 移動時イベント
-            map.events.register("moveend" , map, onMapChange);
+            map.events.register("moveend", map, onMapChange);
 
-            var addMarkers = function() {
-              return new Promise(function(resolve, reject) {
-                for (var i = 0; i < points.length; i++) {
-                    var point=points[i], name=point[0], lat=point[1]+(0.00005*point[3]), lng=point[2]+(0.00005*point[3]), layer=layers[point[3]];
-                    addMarker(name,lat,lng,layer);
-                }
-                resolve();
-              });
+            var addMarkers = function () {
+                return new Promise(function (resolve, reject) {
+                    for (var i = 0; i < points.length; i++) {
+                        var point = points[i], id = point[0], name = point[1], lat = point[2] + (0.00005 * point[4]), lng = point[3] + (0.00005 * point[4]), layer = layers[point[4]];
+                        addMarker(name, lat, lng, layer);
+
+                        // add row
+
+                        var trData = '<tr id="' + id + '"><td>' + name + '</td><td>' + lat + '</td><td>' + lng + '</td><td><input type="button" onclick="remove(' + id + ');$(this).parent().parent().remove();"></td></tr>';
+                        $('#index').append(trData);
+
+                        // add row
+                    }
+                    resolve();
+                });
             };
 
-            addMarkers().then(function() {
+            addMarkers().then(function () {
                 var mapid = document.getElementById("map");
-                document.oncontextmenu = function(){
+                document.oncontextmenu = function () {
                     var olpopup = document.getElementsByClassName("olPopup");
                     if (olpopup) {
-                        for (var i=0;i<olpopup.length;i++) {
+                        for (var i = 0; i < olpopup.length; i++) {
                             var display = olpopup[i].style.display;
                             if (display == "none") {
                                 olpopup[i].style.display = "block";
@@ -94,24 +120,33 @@
 
         }
 
-        function addMarker(name, lat, lng, layer){
+        function addMarker(name, lat, lng, layer) {
             var myLocation = new OpenLayers.Geometry.Point(lng, lat).transform('EPSG:4326', 'EPSG:3857');
-            layer.addFeatures([new OpenLayers.Feature.Vector(myLocation,{tooltip: name})]);
-            var popup = new OpenLayers.Popup.FramedCloud('popup',myLocation.getBounds().getCenterLonLat(),null,name,null,true);
+            layer.addFeatures([new OpenLayers.Feature.Vector(myLocation, { tooltip: name })]);
+            var popup = new OpenLayers.Popup.FramedCloud('popup', myLocation.getBounds().getCenterLonLat(), null, name, null, true);
             map.addPopup(popup);
         }
     </script>
 </head>
+
 <body>
     <div>
         右クリックで吹き出しの表示／非表示を切り替えられます<br />
-        <input type="text"     id="name" name="name" title="名称"      value="名称" />
-        <input type="text"     id="lat"  name="lat"  title="緯度"      value="35.0" />
-        <input type="text"     id="lng"  name="lng"  title="経度"      value="139.0" />
-        <input type="password" id="pw"   name="pw"   title="パスワード" value="PASSWORD" />
-        <input type="button"   id="add"  name="add"                   value="地図の中心地点をDBに追加する">
+        <input type="text" id="name" name="name" title="名称" value="名称" />
+        <input type="text" id="lat" name="lat" title="緯度" value="35.0" />
+        <input type="text" id="lng" name="lng" title="経度" value="139.0" />
+        <input type="password" id="pw" name="pw" title="パスワード" value="PASSWORD" />
+        <input type="button" id="add" name="add" value="地図の中心地点をDBに追加する">
     </div>
     <div id="map"></div>
+    <table id="index">
+        <tr id="-1">
+            <th style="width:40%;">名称</th>
+            <th style="width:20%;">緯度</th>
+            <th style="width:20%;">経度</th>
+            <th style="width:20%;">操作</th>
+        </tr>
+    </table>
 </body>
-</html>
 
+</html>

@@ -12,7 +12,7 @@ try {
   print $e->getTraceAsString();
 }
 
-$sql = "create table if not exists places (id int, name text, lat real, lng real, type integer)";
+$sql = "create table if not exists places (id integer primary key autoincrement, name text, lat real, lng real, type integer)";
 $result = $db->query($sql);
 if (!$result) {
   $db->close();
@@ -28,10 +28,11 @@ if (!$results) {
 while ($row = $results->fetchArray()) {
   echo json_encode(
     array(
+      $row['id'],
       $row['name'],
       $row['lat'],
       $row['lng'],
-      0
+      $row['type']
       ),
     JSON_UNESCAPED_UNICODE
     ).",\n";

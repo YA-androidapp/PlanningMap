@@ -30,7 +30,7 @@ try {
   die();
 }
 
-$sql = "create table if not exists places (id int, name text, lat real, lng real, type integer)";
+$sql = "create table if not exists places (id integer primary key autoincrement, name text, lat real, lng real, type integer)";
 $result = $db->query($sql);
 if (!$result) {
   $db->close();
@@ -47,25 +47,18 @@ $result = $stmt->execute();
 if (!$result) {
   $db->close();
   die('クエリーが失敗しました。'.$sqliteerror);
+} else {
+  echo json_encode(
+    array(
+      $id,
+      $name,
+      $lat,
+      $lng,
+      $type
+      ),
+    JSON_UNESCAPED_UNICODE
+    ).",\n";
 }
-
-// $sql = "SELECT * FROM places";
-// $results = $db->query($sql);
-// if (!$results) {
-//   $db->close();
-//   die('クエリーが失敗しました。'.$sqliteerror);
-// }
-// while ($row = $results->fetchArray()) {
-//   echo json_encode(
-//     array(
-//       $row['name'],
-//       $row['lat'],
-//       $row['lng'],
-//       0
-//       ),
-//     JSON_UNESCAPED_UNICODE
-//     ).",\n";
-// }
 
 // 切断
 $db->close();
