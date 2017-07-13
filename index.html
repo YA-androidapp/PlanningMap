@@ -6,19 +6,35 @@
     <meta charset="utf-8" />
     <style type="text/css">
         #map {
-            height: 98%;
-            with: 98%;
+            height: 80%;
+            width: 80%;
         }
 
         div.olPopup {
             opacity: 0.3;
             display: none;
         }
+
+
+        #col-name {
+            width: 20%;
+        }
+
+        #col-lat {
+            width: 30%;
+        }
+
+        #col-lng {
+            width: 30%;
+        }
+
+        th#col-button {
+            width: 20%;
+        }
     </style>
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="data.php"></script>
-    <!-- script src="//openlayers.org/api/OpenLayers.js"></script -->
-    <script src="OpenLayers.js"></script>
+    <script src="//openlayers.org/api/OpenLayers.js"></script>
     <script>
         function remove(id) {
             $.ajax({
@@ -47,15 +63,19 @@
                     type: "POST",
                     url: "add.php",
                     data: "pw=" + $("#pw").val() + "&name=" + $("#name").val() + "&lat=" + $("#lat").val() + "&lng=" + $("#lng").val() + "&type=0",
+                    dataType: 'json',
                     success: function (msg) {
                         alert("保存しました。");
                         var name = $("#name").val(), lat = $("#lat").val(), lng = $("#lng").val(), layer = layers[0];
-                        addMarker(name, lat, lng, layer);
+                        console.log(msg[0] + "###");
+                        addMarker(msg[0], name, lat, lng, layer);
                     }
                 });
             });
 
             var defLng = 139.7528, defLat = 35.685175;
+            $("#lat").val(defLat);
+            $("#lng").val(defLng);
 
             centerLocation = new OpenLayers.Geometry.Point(defLng, defLat).transform('EPSG:4326', 'EPSG:3857');
 
@@ -79,6 +99,7 @@
                 layers: [new OpenLayers.Layer.OSM()].concat(layers),
                 center: centerLocation.getBounds().getCenterLonLat(), zoom: 12
             });
+            map.addControl(new OpenLayers.Control.PanZoomBar());
 
             // 移動時イベント
             map.events.register("moveend", map, onMapChange);
@@ -87,14 +108,7 @@
                 return new Promise(function (resolve, reject) {
                     for (var i = 0; i < points.length; i++) {
                         var point = points[i], id = point[0], name = point[1], lat = point[2] + (0.00005 * point[4]), lng = point[3] + (0.00005 * point[4]), layer = layers[point[4]];
-                        addMarker(name, lat, lng, layer);
-
-                        // add row
-
-                        var trData = '<tr id="' + id + '"><td>' + name + '</td><td>' + lat + '</td><td>' + lng + '</td><td><input type="button" onclick="remove(' + id + ');$(this).parent().parent().remove();"></td></tr>';
-                        $('#index').append(trData);
-
-                        // add row
+                        addMarker(id, name, lat, lng, layer);
                     }
                     resolve();
                 });
@@ -120,11 +134,14 @@
 
         }
 
-        function addMarker(name, lat, lng, layer) {
+        function addMarker(id, name, lat, lng, layer) {
             var myLocation = new OpenLayers.Geometry.Point(lng, lat).transform('EPSG:4326', 'EPSG:3857');
             layer.addFeatures([new OpenLayers.Feature.Vector(myLocation, { tooltip: name })]);
             var popup = new OpenLayers.Popup.FramedCloud('popup', myLocation.getBounds().getCenterLonLat(), null, name, null, true);
             map.addPopup(popup);
+
+            var trData = '<tr id="' + id + '"><td>' + name + '</td><td>' + lat + '</td><td>' + lng + '</td><td><input type="button" onclick="remove(' + id + ');$(this).parent().parent().remove();" value="削除"></td></tr>';
+            $('#index').append(trData);
         }
     </script>
 </head>
@@ -132,19 +149,19 @@
 <body>
     <div>
         右クリックで吹き出しの表示／非表示を切り替えられます<br />
-        <input type="text" id="name" name="name" title="名称" value="名称" />
-        <input type="text" id="lat" name="lat" title="緯度" value="35.0" />
-        <input type="text" id="lng" name="lng" title="経度" value="139.0" />
+        <input type="text" id="name" name="name" title="名称" value="" />
+        <input type="text" id="lat" name="lat" title="緯度" value="" />
+        <input type="text" id="lng" name="lng" title="経度" value="" />
         <input type="password" id="pw" name="pw" title="パスワード" value="PASSWORD" />
         <input type="button" id="add" name="add" value="地図の中心地点をDBに追加する">
     </div>
     <div id="map"></div>
     <table id="index">
         <tr id="-1">
-            <th style="width:40%;">名称</th>
-            <th style="width:20%;">緯度</th>
-            <th style="width:20%;">経度</th>
-            <th style="width:20%;">操作</th>
+            <th id="col-name">名称</th>
+            <th id="col-lat">緯度</th>
+            <th id="col-lng">経度</th>
+            <th id="col-button">操作</th>
         </tr>
     </table>
 </body>

@@ -19,7 +19,6 @@ if( !is_string($name) || !is_numeric($lat) || !is_numeric($lng) ){
 
 $name = mysql_escape_string($name);
 ?>
-var points = [
 <?php
 try {
   $db = new SQLite3('places.db');
@@ -48,6 +47,16 @@ if (!$result) {
   $db->close();
   die('クエリーが失敗しました。'.$sqliteerror);
 } else {
+  $sql = "select distinct id from places where name = ? and lat = ? and lng = ? and type= ?";
+  $stmt = $db->prepare($sql);
+  $stmt->bindValue(1,        $name, SQLITE3_TEXT);
+  $stmt->bindValue(2, (float)$lat , SQLITE3_FLOAT);
+  $stmt->bindValue(3, (float)$lng , SQLITE3_FLOAT);
+  $stmt->bindValue(4, (int)  $type, SQLITE3_INTEGER);
+  $result = $stmt->execute();
+  $dat = $result->fetchArray();
+
+  $id = $dat[0];
   echo json_encode(
     array(
       $id,
@@ -57,10 +66,8 @@ if (!$result) {
       $type
       ),
     JSON_UNESCAPED_UNICODE
-    ).",\n";
+    );
 }
 
 // 切断
 $db->close();
-?>
-];
