@@ -1,0 +1,4 @@
+<?php
+// Copyright (c) 2018 YA-androidapp(https://github.com/YA-androidapp) All rights reserved.
+// md5('PASSWORD') または echo -n 'PASSWORD' | md5sum して得たハッシュ値を以下の変数に格納し、ファイル名から.emptyを外す。
+$PASSWORD = '';
