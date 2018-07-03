@@ -1,4 +1,4 @@
 <?php
 // Copyright (c) 2018 YA-androidapp(https://github.com/YA-androidapp) All rights reserved.
-// md5('PASSWORD') ‚Ü‚½‚Í echo -n 'PASSWORD' | md5sum ‚µ‚Ä“¾‚½ƒnƒbƒVƒ…’l‚ðˆÈ‰º‚Ì•Ï”‚ÉŠi”[‚µAƒtƒ@ƒCƒ‹–¼‚©‚ç.empty‚ðŠO‚·B
+// md5('PASSWORD') ã¾ãŸã¯ echo -n 'PASSWORD' | md5sum ã—ã¦å¾—ãŸãƒãƒƒã‚·ãƒ¥å€¤ã‚’ä»¥ä¸‹ã®å¤‰æ•°ã«æ ¼ç´ã—ã€ãƒ•ã‚¡ã‚¤ãƒ«åã‹ã‚‰.emptyã‚’å¤–ã™ã€‚
 $PASSWORD = '';
